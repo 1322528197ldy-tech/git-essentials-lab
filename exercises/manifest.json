@@ -1,0 +1,669 @@
+{
+  "version": "1.0",
+  "upstream": "https://github.com/oh-gnues/git-essentials-lab.git",
+  "exercises": {
+    "01": {
+      "title": "Branch and switch",
+      "start": "lab-v1/ex01/start",
+      "helpers": {},
+      "solution_branch": "result/ex01",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "insensitive"
+      },
+      "checks": {
+        "contains": {
+          "src/library/Catalog.java": [
+            "book.title().toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT))"
+          ]
+        },
+        "ancestor_start": true
+      },
+      "setup_actions": [],
+      "local_setup": "none",
+      "graded": true
+    },
+    "02": {
+      "title": "Fork, remote and push",
+      "start": "lab-v1/ex02/start",
+      "helpers": {},
+      "solution_branch": "result/ex02",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "contains": {
+          "docs/my-run-guide.md": [
+            "python3 run.py demo"
+          ]
+        },
+        "ancestor_start": true
+      },
+      "setup_actions": [],
+      "local_setup": "none",
+      "graded": true
+    },
+    "03": {
+      "title": "Fetch and pull",
+      "start": "lab-v1/ex03/start",
+      "helpers": {},
+      "solution_branch": "result/ex03",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 21,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {},
+      "setup_actions": [],
+      "local_setup": "fetch",
+      "graded": false,
+      "remote_setup": {
+        "branch": "practice",
+        "changes": [
+          {
+            "op": "replace",
+            "path": "src/library/LoanPolicy.java",
+            "old": "return 14;",
+            "new": "return 21;"
+          }
+        ],
+        "message": "feat: extend loan period to 21 days"
+      }
+    },
+    "04": {
+      "title": "Merge, pull request and conflict",
+      "start": "lab-v1/ex04/start",
+      "helpers": {
+        "faculty": "lab-v1/ex04/faculty"
+      },
+      "solution_branch": "result/ex04",
+      "expected": {
+        "student": 3,
+        "faculty": 5,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "ancestors": [
+          "lab-v1/ex04/student",
+          "lab-v1/ex04/faculty"
+        ],
+        "minimum_merges": 1
+      },
+      "setup_actions": [],
+      "local_setup": "none",
+      "graded": true,
+      "variant_b": {
+        "start": "lab-v1/ex04-b/start",
+        "helpers": {
+          "faculty": "lab-v1/ex04-b/faculty"
+        },
+        "expected": {
+          "student": 4,
+          "faculty": 6,
+          "days": 14,
+          "fee": 100,
+          "search": "sensitive"
+        },
+        "checks": {
+          "ancestors": [
+            "lab-v1/ex04-b/student",
+            "lab-v1/ex04-b/faculty"
+          ],
+          "minimum_merges": 1
+        }
+      }
+    },
+    "05": {
+      "title": "Restore and revert",
+      "start": "lab-v1/ex05/start",
+      "helpers": {
+        "bad-policy": "lab-v1/ex05/bad-policy"
+      },
+      "solution_branch": "result/ex05",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "ancestor_start": true,
+        "contains": {
+          "docs/return-guide.md": [
+            "before its due date"
+          ]
+        },
+        "reverts": [
+          "lab-v1/ex05/bad-policy"
+        ]
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"DEBUG: \" + title;"
+        }
+      ],
+      "local_setup": "restore",
+      "graded": true
+    },
+    "06": {
+      "title": "Stash interrupted work",
+      "start": "lab-v1/ex06/start",
+      "helpers": {},
+      "solution_branch": "result/ex06",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 21,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ],
+          "notes/search-ideas.txt": [
+            "Search should ignore case."
+          ]
+        }
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "write",
+          "path": "notes/search-ideas.txt",
+          "text": "Search should ignore case.\n"
+        }
+      ],
+      "local_setup": "stash",
+      "graded": false
+    },
+    "07": {
+      "title": "Amend an incomplete commit",
+      "start": "lab-v1/ex07/start",
+      "helpers": {},
+      "solution_branch": "result/ex07",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "commits_since_start": 1,
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ],
+          "docs/receipt.md": [
+            "confirms the borrowed book title"
+          ]
+        },
+        "tip_message": "feat: improve loan receipt"
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "commit",
+          "message": "wip receipt",
+          "paths": [
+            "src/library/LoanReceipt.java"
+          ]
+        },
+        {
+          "op": "write",
+          "path": "docs/receipt.md",
+          "text": "# Loan receipt\nA receipt confirms the borrowed book title.\n"
+        }
+      ],
+      "local_setup": "amend",
+      "graded": true
+    },
+    "08": {
+      "title": "Reset and split a commit",
+      "start": "lab-v1/ex08/start",
+      "helpers": {},
+      "solution_branch": "result/ex08",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "commits_since_start": 2,
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ],
+          "docs/receipt.md": [
+            "confirms the borrowed book title"
+          ]
+        },
+        "one_path_per_commit": true
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "write",
+          "path": "docs/receipt.md",
+          "text": "# Loan receipt\nA receipt confirms the borrowed book title.\n"
+        },
+        {
+          "op": "commit",
+          "message": "mixed changes",
+          "paths": [
+            "src/library/LoanReceipt.java",
+            "docs/receipt.md"
+          ]
+        }
+      ],
+      "local_setup": "reset",
+      "graded": false
+    },
+    "09": {
+      "title": "Cherry-pick only the required fix",
+      "start": "lab-v1/ex09/start",
+      "helpers": {
+        "donor": "lab-v1/ex09/donor"
+      },
+      "solution_branch": "result/ex09",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "ancestor_start": true,
+        "commits_since_start": 1,
+        "absent": [
+          "src/library/Reservation.java",
+          "docs/debug-notes.md"
+        ],
+        "not_ancestors": [
+          "lab-v1/ex09/donor"
+        ]
+      },
+      "setup_actions": [],
+      "local_setup": "none",
+      "graded": true,
+      "variant_b": {
+        "start": "lab-v1/ex09/start",
+        "helpers": {
+          "donor": "lab-v1/ex09-b/donor"
+        },
+        "expected": {
+          "student": 2,
+          "faculty": 2,
+          "days": 14,
+          "fee": 200,
+          "search": "sensitive"
+        },
+        "checks": {
+          "ancestor_start": true,
+          "commits_since_start": 1,
+          "absent": [
+            "src/library/Reservation.java",
+            "docs/debug-notes.md"
+          ],
+          "not_ancestors": [
+            "lab-v1/ex09-b/donor"
+          ]
+        }
+      }
+    },
+    "10": {
+      "title": "Rebase and clean up private commits",
+      "start": "lab-v1/ex10/start",
+      "helpers": {
+        "upstream": "lab-v1/ex10/upstream"
+      },
+      "solution_branch": "result/ex10",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 21,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "ancestors": [
+          "lab-v1/ex10/upstream"
+        ],
+        "commits_since_ref": {
+          "ref": "lab-v1/ex10/upstream",
+          "count": 1
+        },
+        "no_merges_since": "lab-v1/ex10/upstream",
+        "tip_message": "feat: improve loan receipt",
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ],
+          "docs/receipt.md": [
+            "confirms the borrowed book title"
+          ]
+        }
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "commit",
+          "message": "wip receipt",
+          "paths": [
+            "src/library/LoanReceipt.java"
+          ]
+        },
+        {
+          "op": "write",
+          "path": "docs/receipt.md",
+          "text": "# Loan receipt\nA receipt confirms the borrowed book title.\n"
+        },
+        {
+          "op": "commit",
+          "message": "wip receipt docs",
+          "paths": [
+            "docs/receipt.md"
+          ]
+        }
+      ],
+      "local_setup": "rebase",
+      "graded": true,
+      "variant_b": {
+        "start": "lab-v1/ex10-b/start",
+        "helpers": {
+          "upstream": "lab-v1/ex10-b/upstream"
+        },
+        "expected": {
+          "student": 2,
+          "faculty": 2,
+          "days": 28,
+          "fee": 100,
+          "search": "sensitive"
+        },
+        "checks": {
+          "ancestors": [
+            "lab-v1/ex10-b/upstream"
+          ],
+          "commits_since_ref": {
+            "ref": "lab-v1/ex10-b/upstream",
+            "count": 1
+          },
+          "no_merges_since": "lab-v1/ex10-b/upstream",
+          "tip_message": "feat: improve loan receipt",
+          "contains": {
+            "src/library/LoanReceipt.java": [
+              "\"Borrowed: \""
+            ],
+            "docs/receipt.md": [
+              "confirms the borrowed book title"
+            ]
+          }
+        }
+      }
+    },
+    "11": {
+      "title": "Publish rewritten history with a lease",
+      "start": "lab-v1/ex11/start",
+      "helpers": {},
+      "solution_branch": "result/ex11",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ]
+        },
+        "lease_remote": true
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "commit",
+          "message": "wip receipt",
+          "paths": [
+            "src/library/LoanReceipt.java"
+          ]
+        }
+      ],
+      "local_setup": "lease",
+      "graded": false,
+      "remote_setup": {
+        "branch": "practice",
+        "changes": [
+          {
+            "op": "write",
+            "path": "docs/teammate-note.md",
+            "text": "Keep the teammate update.\n"
+          }
+        ],
+        "message": "docs: add teammate update"
+      }
+    },
+    "12": {
+      "title": "Recover a lost commit with reflog",
+      "start": "lab-v1/ex12/start",
+      "helpers": {},
+      "solution_branch": "result/ex12",
+      "expected": {
+        "student": 2,
+        "faculty": 2,
+        "days": 14,
+        "fee": 100,
+        "search": "sensitive"
+      },
+      "checks": {
+        "contains": {
+          "src/library/LoanReceipt.java": [
+            "\"Borrowed: \""
+          ]
+        },
+        "recovery_branch": "recovery/receipt"
+      },
+      "setup_actions": [
+        {
+          "op": "replace",
+          "path": "src/library/LoanReceipt.java",
+          "old": "return \"Loan: \" + title;",
+          "new": "return \"Borrowed: \" + title;"
+        },
+        {
+          "op": "commit",
+          "message": "feat: recoverable loan receipt",
+          "paths": [
+            "src/library/LoanReceipt.java"
+          ]
+        },
+        {
+          "op": "reset",
+          "mode": "hard",
+          "ref": "HEAD~1"
+        }
+      ],
+      "local_setup": "reflog",
+      "graded": false
+    },
+    "final": {
+      "title": "Repair the tangled release",
+      "start": "lab-v1/final/start",
+      "helpers": {
+        "bad-policy": "lab-v1/final/bad-policy",
+        "student": "lab-v1/final/student",
+        "faculty": "lab-v1/final/faculty",
+        "search": "lab-v1/final/search",
+        "donor": "lab-v1/final/donor"
+      },
+      "solution_branch": "result/final",
+      "expected": {
+        "student": 3,
+        "faculty": 5,
+        "days": 14,
+        "fee": 100,
+        "search": "insensitive"
+      },
+      "checks": {
+        "ancestor_start": true,
+        "ancestors": [
+          "lab-v1/final/student",
+          "lab-v1/final/faculty",
+          "lab-v1/final/search"
+        ],
+        "absent": [
+          "src/library/Reservation.java",
+          "docs/debug-notes.md"
+        ],
+        "not_ancestors": [
+          "lab-v1/final/donor"
+        ],
+        "minimum_merges": 2,
+        "reverts": [
+          "lab-v1/final/bad-policy"
+        ],
+        "no_wip_since": "lab-v1/final/start",
+        "contains": {
+          "docs/release-notes.md": [
+            "Preserve the existing return workflow."
+          ],
+          "docs/release-checklist.md": [
+            "Review borrowing limits.",
+            "Run regression checks."
+          ]
+        },
+        "path_commit_count": {
+          "path": "docs/release-checklist.md",
+          "since": "lab-v1/final/start",
+          "count": 1
+        }
+      },
+      "setup_actions": [
+        {
+          "op": "write",
+          "path": "docs/release-checklist.md",
+          "text": "Review borrowing limits.\n"
+        },
+        {
+          "op": "commit",
+          "message": "wip checklist",
+          "paths": [
+            "docs/release-checklist.md"
+          ]
+        },
+        {
+          "op": "write",
+          "path": "docs/release-checklist.md",
+          "text": "Review borrowing limits.\nRun regression checks.\n"
+        },
+        {
+          "op": "commit",
+          "message": "wip checklist tests",
+          "paths": [
+            "docs/release-checklist.md"
+          ]
+        }
+      ],
+      "local_setup": "none",
+      "graded": true,
+      "variant_b": {
+        "start": "lab-v1/final/start",
+        "helpers": {
+          "bad-policy": "lab-v1/final/bad-policy",
+          "student": "lab-v1/final-b/student",
+          "faculty": "lab-v1/final-b/faculty",
+          "search": "lab-v1/final-b/search",
+          "donor": "lab-v1/final-b/donor"
+        },
+        "expected": {
+          "student": 4,
+          "faculty": 6,
+          "days": 14,
+          "fee": 200,
+          "search": "insensitive"
+        },
+        "checks": {
+          "ancestor_start": true,
+          "ancestors": [
+            "lab-v1/final-b/student",
+            "lab-v1/final-b/faculty",
+            "lab-v1/final-b/search"
+          ],
+          "absent": [
+            "src/library/Reservation.java",
+            "docs/debug-notes.md"
+          ],
+          "not_ancestors": [
+            "lab-v1/final-b/donor"
+          ],
+          "minimum_merges": 2,
+          "reverts": [
+            "lab-v1/final/bad-policy"
+          ],
+          "no_wip_since": "lab-v1/final/start",
+          "contains": {
+            "docs/release-notes.md": [
+              "Preserve the existing return workflow."
+            ],
+            "docs/release-checklist.md": [
+              "Review borrowing limits.",
+              "Run regression checks."
+            ]
+          },
+          "path_commit_count": {
+            "path": "docs/release-checklist.md",
+            "since": "lab-v1/final/start",
+            "count": 1
+          }
+        }
+      }
+    }
+  }
+}
