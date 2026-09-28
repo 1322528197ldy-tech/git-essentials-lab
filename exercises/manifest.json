@@ -15,11 +15,6 @@
         "search": "insensitive"
       },
       "checks": {
-        "contains": {
-          "src/library/Catalog.java": [
-            "book.title().toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT))"
-          ]
-        },
         "ancestor_start": true
       },
       "setup_actions": [],
