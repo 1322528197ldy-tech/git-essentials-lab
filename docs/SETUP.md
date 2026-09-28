@@ -69,7 +69,7 @@ Use the identity you normally use for coursework. Your GitHub-provided no-reply 
 
 ## 5. Choose a Git editor before making commits
 
-Git can open an editor for commit messages, merge/revert messages, and the interactive rebase todo list. Choose one installed editor and configure it **inside each exercise workspace** before using those operations. A repository-local `core.editor` setting affects only that repository; configuring the launcher does not configure its new clones.
+Git can open an editor for commit messages, merge/revert messages, and the interactive rebase todo list. Choose one installed editor and configure it **inside each exercise workspace** before using those operations. A repository-local `core.editor` setting affects only that repository; configuring the launcher does not configure its new clones. Each `start` command prints a reminder to check this setting. It does not copy the launcher's editor setting or change your global Git configuration.
 
 If you use VS Code, first confirm that `code --version` works in your terminal. Then, inside the workspace:
 
@@ -136,5 +136,25 @@ python3 lab.py doctor
 If Git refuses the fast-forward, inspect the local commits and ask for help rather than resetting or force-pushing. Updating `origin/main` is not required to use the refreshed launcher. The existing `lab-v1/...` starting tags remain unchanged, and your separate exercise workspaces remain intact. Re-run a check from the updated launcher to use the new checker on an existing workspace.
 
 Exercise folders contain historical snapshots of the tools and documents. Use the launcher's current instructions and `lab.py`; those snapshots do not acquire the new wording or checker when the launcher is updated.
+
+## Cannot read the launcher's exercises/manifest.json
+
+If you run an old copy of `lab.py` **inside an exercise workspace**, it may report:
+
+```text
+Cannot read the launcher's exercises/manifest.json
+```
+
+The workspace is a historical snapshot for the exercise; its old tool may lack the lab definition needed to run the current launcher commands. This error does not mean that your Git work has been lost. Return to the **original launcher directory** and use its current instructions and checker:
+
+```text
+cd "/PATH/TO/YOUR/LAUNCHER"
+python3 lab.py instructions 11
+python3 lab.py check 11 --repo "/PATH/TO/YOUR/WORKSPACE"
+```
+
+Replace both paths with your actual directories, and replace `11` with your exercise ID. The `--repo` path is the exercise workspace printed by `start`; it is not the launcher. Keep working on Git commands and application files in the workspace, but return to the launcher for `lab.py` commands.
+
+Do not copy a manifest or new tools into the exercise, or edit its starting tags to remove this error. If the same message appears when running from the original launcher, confirm that you opened the original clone on `main` and follow [Updating an existing launcher](#updating-an-existing-launcher). Preserve your work before changing anything; ask for help if the manifest is still missing after the update.
 
 Next: [Exercise 01](exercises/01.md).

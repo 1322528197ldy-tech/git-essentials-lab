@@ -103,17 +103,57 @@ def check_exercise(repo: Path, spec: dict, state: dict, launcher: Path) -> dict:
             if state.get('last_commit'):
                 add('Recovery points to the original lost commit',r.stdout.strip()==state['last_commit'])
         if rules.get('lease_remote'):
-            remote=git('ls-remote','practice','refs/heads/practice',okay=True)
-            tip=remote.stdout.split()[0] if remote.stdout.split() else ''
+            # Inspect only this workspace's local simulation, without fetching
+            # objects or moving the student's remote-tracking references.
+            bare=repo/'.git/lab-remotes/practice.git'
+            configured=git('remote','get-url','--all','practice',okay=True)
+            urls=configured.stdout.splitlines() if configured.returncode==0 else []
+            expected=bare.resolve()
+            original=(len(urls)==1 and not bare.is_symlink() and bare.is_dir()
+                      and (repo/urls[0]).resolve()==expected)
+            def remote_git(*args):
+                return subprocess.run(['git','-C',str(expected),*args],text=True,
+                                      capture_output=True,timeout=30)
+            if original:
+                is_bare=remote_git('rev-parse','--is-bare-repository')
+                original=is_bare.returncode==0 and is_bare.stdout.strip()=='true'
+            add('Practice remote is the original local simulation',original,
+                '' if original else 'The practice remote is missing, unavailable, or changed; start a new Exercise 11 workspace.')
+            remote=remote_git('rev-parse','--verify','refs/heads/practice^{commit}') if original else None
+            tip=remote.stdout.strip() if remote is not None and remote.returncode==0 else ''
             head=git('rev-parse','HEAD').stdout.strip()
             old=state.get('known_initial_remote_tip','')
-            add('Rewritten result reached the practice remote',bool(tip and tip==head and head!=old),'Practice outcome only; not proof of lease use')
+            add('Local HEAD matches the practice remote tip and differs from the initial tip',
+                bool(tip and tip==head and head!=old),
+                'Current tips only; not proof of a rewritten push or lease use.' if tip else
+                'The original local simulation must have a readable refs/heads/practice tip.')
             if not state.get('remote_advanced'):
                 add('Receipt commit message is complete',git('log','-1','--format=%s').stdout.strip()=='feat: improve loan receipt')
             if state.get('remote_advanced'):
                 peer=state.get('advanced_remote_tip','')
-                preserved=bool(peer) and git('merge-base','--is-ancestor',peer,'HEAD',okay=True).returncode==0
-                add('The simulated teammate update is preserved',preserved and 'Keep the teammate update.' in read('docs/teammate-note.md'))
+                included=bool(peer) and git('merge-base','--is-ancestor',peer,'HEAD',okay=True).returncode==0
+                add('Local HEAD includes the simulated teammate commit',included,
+                    'Local inclusion is separate from preservation on the practice remote.')
+                add('Local working tree retains the teammate note',
+                    'Keep the teammate update.' in read('docs/teammate-note.md'))
+                retained=False
+                if not original:
+                    remote_detail='Cannot verify preservation: the original local simulation is missing, unavailable, or changed.'
+                elif not tip:
+                    remote_detail='Cannot verify preservation: refs/heads/practice is missing or is not a readable commit.'
+                elif not peer:
+                    remote_detail='Cannot verify preservation: no simulated teammate commit ID was recorded.'
+                elif remote_git('cat-file','-e',peer+'^{commit}').returncode!=0:
+                    remote_detail='Cannot verify preservation: the recorded teammate commit is unavailable in the local simulation.'
+                elif remote_git('merge-base','--is-ancestor',peer,tip).returncode!=0:
+                    remote_detail='The practice tip no longer includes the recorded simulated teammate commit.'
+                else:
+                    remote_note=remote_git('show',tip+':docs/teammate-note.md')
+                    retained=remote_note.returncode==0 and 'Keep the teammate update.' in remote_note.stdout
+                    remote_detail=('Checked directly in the original local remote; fetching is not required.' if retained else
+                                   'The practice tip does not contain the required committed teammate note.')
+                add('The practice remote retains the simulated teammate commit and note',
+                    retained,remote_detail)
         # An unfinished merge/rebase cannot count as a finished answer.
         unresolved=git('ls-files','--unmerged').stdout
         add('No unresolved index conflicts',not unresolved)

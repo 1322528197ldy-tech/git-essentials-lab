@@ -19,7 +19,7 @@ python3 lab.py refs
 python3 lab.py start 01
 ```
 
-`start` prints the new workspace path. Use that path when changing directories or passing `--repo` to a check. It creates a new directory; it does not reset your launcher or an existing workspace.
+`start` prints the new workspace path and a reminder to check that workspace's [Git editor setting](docs/SETUP.md#5-choose-a-git-editor-before-making-commits). Use that path when changing directories or passing `--repo` to a check. It creates a new directory; it does not reset your launcher or an existing workspace.
 
 ## Exercises
 
@@ -53,6 +53,8 @@ Submit only the variant assigned by your instructor; if none is assigned, use th
 | Exercise workspace: the directory printed by `start` | Inspect Git history, edit the application, run Git commands, and publish the named result branch. |
 
 The versioned starting tags are fixed snapshots. A workspace may therefore contain an older copy of the documents or tools, including older test-output wording. Always read the current instructions and run `lab.py` from the launcher; do not change the starting tags to update a workspace.
+
+If an old workspace's `lab.py` reports `Cannot read the launcher's exercises/manifest.json`, return to your original launcher and run the check there with `--repo` pointing to the workspace. See [the recovery commands](docs/SETUP.md#cannot-read-the-launchers-exercisesmanifestjson) for a complete example.
 
 For example, after starting Exercise 01, run its check **from the launcher**, replacing the example path with the path printed by `start`:
 

@@ -72,6 +72,8 @@ If Git opens an unfamiliar editor, use the save/exit instructions in [Setup](SET
 
 Run the check from the launcher so it uses the current lab definition. Editing tests or the checker in the exercise workspace does not complete a task.
 
+If an old workspace's tool says `Cannot read the launcher's exercises/manifest.json`, return to the original launcher instead of repairing files in the exercise. Run `python3 lab.py instructions ID` there to read the current page, then `python3 lab.py check ID --repo "/PATH/TO/YOUR/WORKSPACE"` to check your existing work. Replace `ID` and the path with your exercise and workspace. [Setup includes a complete example](SETUP.md#cannot-read-the-launchers-exercisesmanifestjson).
+
 ## Restart without losing the old attempt
 
 Return to the launcher and start the same ID again:

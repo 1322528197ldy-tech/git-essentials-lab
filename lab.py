@@ -311,6 +311,7 @@ def start(args):
     print("Workspace: " + str(repo))
     print("Branch: " + git_text(repo, "branch", "--show-current"))
     print("Open this workspace to do the exercise. Keep the launcher clone unchanged.")
+    print("Git editor: check the editor used in this workspace before commits or rebase; see the launcher's docs/SETUP.md, section 5.")
     print("Workspace documents and tools are historical snapshots; use the updated launcher's instructions and check commands.")
     print("Check from the launcher: {} lab.py check {} --repo {}".format(
         PYTHON_COMMAND, exercise_id, json.dumps(str(repo))))
@@ -420,6 +421,16 @@ def check_exercise(args):
         "required": exercise_id in ("04", "final"),
         "checked": False,
     }
+    if exercise_id == "11" and state.get("remote_advanced"):
+        report["practice_context"] = {
+            "mode": "optional-stale-lease",
+            "note": (
+                "Optional stale-lease attempt: inspect the remote preservation result. "
+                "Local integration and matching tips are separate observations; "
+                "the ordinary completion check need not pass. "
+                "These checks do not prove a lease rejection or a rewritten push."
+            ),
+        }
     if args.json:
         print(json.dumps(report, indent=2, ensure_ascii=False))
     else:
@@ -436,6 +447,8 @@ def check_exercise(args):
             if recovery:
                 print("Recovery branch: " + recovery)
         print("Scope: " + report["scope"])
+        if report.get("practice_context"):
+            print(report["practice_context"]["note"])
         if report["github_pr"]["required"]:
             print("GitHub PR: NOT CHECKED. Complete and verify the required PR separately.")
         if not report["graded"]:
