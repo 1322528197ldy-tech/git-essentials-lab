@@ -6,6 +6,7 @@ Tests always come from the directory containing this trusted runner.
 """
 
 import argparse
+import os
 import pathlib
 import shutil
 import subprocess
@@ -35,14 +36,14 @@ def parser():
         # SUPPRESS preserves a --source option supplied before the subcommand.
         sub.add_argument("--source", type=pathlib.Path, default=argparse.SUPPRESS)
         if command == "test":
-            sub.add_argument("--student", type=nonnegative, default=2)
-            sub.add_argument("--faculty", type=nonnegative, default=2)
-            sub.add_argument("--days", type=nonnegative, default=14)
-            sub.add_argument("--fee", type=nonnegative, default=100)
+            sub.add_argument("--student", type=nonnegative)
+            sub.add_argument("--faculty", type=nonnegative)
+            sub.add_argument("--days", type=nonnegative)
+            sub.add_argument("--fee", type=nonnegative)
             search = sub.add_mutually_exclusive_group()
             search.add_argument("--search-sensitive", dest="sensitive", action="store_true")
             search.add_argument("--search-insensitive", dest="sensitive", action="store_false")
-            sub.set_defaults(sensitive=True)
+            sub.set_defaults(sensitive=None)
     return result
 
 
@@ -79,6 +80,20 @@ def main(argv=None):
         return 127
     files = source_files
     if args.command == "test":
+        defaults = dict(student=2, faculty=2, days=14, fee=100, sensitive=True)
+        explicit = any(getattr(args, key) is not None for key in defaults)
+        for key, value in defaults.items():
+            if getattr(args, key) is None:
+                setattr(args, key, value)
+        print("Application behavior test: {} expectations.".format(
+            "explicit" if explicit else "BASELINE (not exercise-specific)"))
+        print("Expected: student={}, faculty={}, days={}, fee={}, search={}.".format(
+            args.student, args.faculty, args.days, args.fee,
+            "case-sensitive" if args.sensitive else "case-insensitive"))
+        if not explicit:
+            python_command = "py -3" if os.name == "nt" else "python3"
+            print("For an exercise result, run from the launcher: " + python_command +
+                  " lab.py check <id> --repo <workspace>")
         tests = sorted((ROOT / "tests" / "library").rglob("*.java"))
         if not tests:
             print("ERROR: launcher tests/library contains no tests.", file=sys.stderr)
@@ -103,5 +118,38 @@ def main(argv=None):
         return execute(command, RUN_TIMEOUT, source)
 
 
+class QuietPipeOutput:
+    """Keep the test's exit status when an output reader closes its pipe."""
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def mute(self):
+        with open(os.devnull, "w") as sink:
+            os.dup2(sink.fileno(), self.stream.fileno())
+
+    def write(self, text):
+        try:
+            return self.stream.write(text)
+        except BrokenPipeError:
+            self.mute()
+            return len(text)
+
+    def flush(self):
+        try:
+            self.stream.flush()
+        except BrokenPipeError:
+            self.mute()
+            self.stream.flush()
+
+
+def cli_main():
+    sys.stdout = QuietPipeOutput(sys.stdout)
+    return main()
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli_main())

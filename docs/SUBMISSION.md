@@ -30,11 +30,13 @@ git log --oneline --graph --decorate -12
 
 The exercise page defines whether the working tree should be clean or should retain a deliberate local change. Do not make an extra commit merely to silence `status` when the exercise asks you to inspect staged or unstaged changes.
 
-The checker evaluates application behavior and relevant repository state. It does not prove which command you typed. GitHub cannot reproduce a different clone's staging area, stash, or reflog, so local-only practice is not remotely graded. A PR is checked separately from an ordinary branch push.
+The checker evaluates the **current `HEAD` in the specified workspace**, including application behavior and relevant repository state. Read its evaluated branch and commit ID. A PASS on `feature/ex04` or `feature/final` checks your proposed change; it does not mean that the result branch or a PR has been updated. Run the check again on the merged target after fetching it. The local checker does not verify PR existence or merged state, so inspect those on GitHub separately.
+
+The checker does not prove which command you typed. GitHub cannot reproduce a different clone's staging area, stash, or reflog, so local-only practice is not remotely graded.
 
 ## Publish ordinary result branches
 
-Exercise result branches use `result/ex01` through `result/ex12`; the final target branch is `result/final`. Publish a result only when its exercise page asks you to do so.
+Submitted numbered exercises use `result/exNN`; the final target branch is `result/final`. Publish only the exercises listed for submission in the table above. In particular, Exercise 12 finishes on the local `recovery/receipt` branch and does not require a remote result branch.
 
 From the relevant exercise workspace, this example publishes Exercise 01:
 
@@ -81,6 +83,12 @@ No other student has to approve the PR for this lab. You can inspect and merge y
 Provide the URL of your fork and the URLs of the completed Exercise 04 and Final PRs through the course's stated submission channel. Keep the required result branches available in that fork. Identify any variant B attempt clearly so its changed requirements can be checked against the correct scenario.
 
 You do not need to submit terminal transcripts as proof that a particular command was used. Local checks support your own practice; the published branches and PRs are the reviewable results.
+
+## Choosing an A or B attempt
+
+Submit the variant assigned by your instructor. If no variant is specified, submit the default **A** version. A and B are alternative attempts: both use the same `result/...` and, where applicable, `feature/...` branch names. One named remote branch can identify only one of those results at a time.
+
+Decide which variant to submit **before publishing**. Keep the other variant in its separate local workspace for extra practice. Starting B does not replace a published A result automatically; attempting to push it to the same remote name may be rejected. Do not force-push or mix the two histories merely to publish both. If the instructor later changes your assigned variant, preserve the existing result and agree on the replacement or separate submission naming first. Mark the submitted variant in your submission text and PR description.
 
 ## Repeating a published task
 

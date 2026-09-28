@@ -26,22 +26,24 @@ python3 lab.py start 01
 | Exercise | Topic | Instructions |
 | --- | --- | --- |
 | 01 | Branch and switch | [Open](docs/exercises/01.md) |
-| 02 | Remotes, fork, and push | [Open](docs/exercises/02.md) |
+| 02 | Fork, remotes, and push | [Open](docs/exercises/02.md) |
 | 03 | Fetch and pull | [Open](docs/exercises/03.md) |
-| 04 | Merge and conflicts | [Open](docs/exercises/04.md) |
+| 04 | Merge, pull request, and conflict | [Open](docs/exercises/04.md) |
 | 05 | Restore and revert | [Open](docs/exercises/05.md) |
-| 06 | Stash | [Open](docs/exercises/06.md) |
-| 07 | Amend | [Open](docs/exercises/07.md) |
-| 08 | Reset | [Open](docs/exercises/08.md) |
-| 09 | Cherry-pick | [Open](docs/exercises/09.md) |
-| 10 | Rebase | [Open](docs/exercises/10.md) |
-| 11 | Force push with a lease | [Open](docs/exercises/11.md) |
-| 12 | Reflog | [Open](docs/exercises/12.md) |
-| Final | Combined task and pull request | [Open](docs/exercises/final.md) |
+| 06 | Stash interrupted work | [Open](docs/exercises/06.md) |
+| 07 | Amend an incomplete commit | [Open](docs/exercises/07.md) |
+| 08 | Reset and split a commit | [Open](docs/exercises/08.md) |
+| 09 | Cherry-pick only the required fix | [Open](docs/exercises/09.md) |
+| 10 | Rebase and clean up private commits | [Open](docs/exercises/10.md) |
+| 11 | Publish rewritten history with a lease | [Open](docs/exercises/11.md) |
+| 12 | Recover a lost commit with reflog | [Open](docs/exercises/12.md) |
+| Final | Repair the tangled release | [Open](docs/exercises/final.md) |
 
 Read the exercise's situation and success conditions before editing. Each page identifies its starting state, required result, checks, submission, and restart procedure. Exercises 04, 09, 10, and Final also have a variant B for another attempt with changed requirements.
 
 Without `--variant b`, `start` uses the default scenario described first on each page. `check` reads the variant recorded when that workspace was created, so the same check command works for either variant. `python3 lab.py instructions 04` prints the current Exercise 04 page from the launcher; replace `04` with another exercise ID as needed.
+
+Submit only the variant assigned by your instructor; if none is assigned, use the default variant A. Both variants use the same submission branch names. Keep an optional second variant local rather than overwriting the submitted result. See [Choosing an A or B attempt](docs/SUBMISSION.md#choosing-an-a-or-b-attempt).
 
 ## The two places you work
 
@@ -50,13 +52,17 @@ Without `--variant b`, `start` uses the default scenario described first on each
 | Launcher: your original clone | Read the current instructions; run `lab.py doctor`, `start`, `check`, and `advance`. |
 | Exercise workspace: the directory printed by `start` | Inspect Git history, edit the application, run Git commands, and publish the named result branch. |
 
+The versioned starting tags are fixed snapshots. A workspace may therefore contain an older copy of the documents or tools, including older test-output wording. Always read the current instructions and run `lab.py` from the launcher; do not change the starting tags to update a workspace.
+
 For example, after starting Exercise 01, run its check **from the launcher**, replacing the example path with the path printed by `start`:
 
 ```text
 python3 lab.py check 01 --repo "../git-lab-work/01-YOUR-TIMESTAMP"
 ```
 
-Checks evaluate the prepared task's result. A passing result does not prove that you used a particular command or understood why it worked. Practice the topic deliberately and be ready to explain the resulting history and application behavior. Local-only practice is identified on the relevant pages and is not remotely graded.
+Checks evaluate the workspace's **current checked-out commit (`HEAD`)** and the local state required by that exercise. Read the evaluated branch and commit in the output: passing on a feature branch does not mean the result branch has been updated. For Exercise 04 and Final, the local check does not verify the GitHub PR's existence or merged state; check before publication, then check the merged target again and confirm the PR on GitHub.
+
+A passing result does not prove that you used a particular command or understood why it worked. Practice the topic deliberately and be ready to explain the resulting history and application behavior. Local-only practice is identified on the relevant pages and is not remotely graded.
 
 ## Explore the application
 
@@ -67,13 +73,13 @@ python3 run.py demo
 python3 run.py test
 ```
 
-The runner compiles the Java code into a temporary directory. Exercise requirements can change the expected borrowing rules; use the exercise's `lab.py check` command to check its intended result.
+The runner compiles the Java code into a temporary directory. **`run.py test` without expectation options tests the original baseline**, including borrowing limits, loan periods, overdue fees, and search behavior. Exercise requirements can intentionally change those rules. A correct exercise solution can therefore fail the baseline test. To evaluate an exercise, return to the launcher and use its `lab.py check ID --repo PATH` command, which selects that exercise and variant's expected behavior.
 
 Useful application files are under `src/library/`; tests are under `tests/library/`. Git exercise starting points are the versioned `lab-v1/...` tags. Keep those tags unchanged so every attempt has the same starting point.
 
 ## Help
 
-- [Setup](docs/SETUP.md): tools, fork, all branches and tags, and remotes.
+- [Setup](docs/SETUP.md): tools, fork, all branches and tags, remotes, and Git editor save/exit instructions.
 - [Submission](docs/SUBMISSION.md): what to publish and which pull-request repositories to select.
 - [Hints](docs/HINTS.md): how to inspect state and recover from an interrupted operation.
 - [Starting graphs](docs/GRAPHS.md): the initial histories for 04, 09, 10, and Final, including private setup commits.

@@ -33,6 +33,31 @@ def check_exercise(repo: Path, spec: dict, state: dict, launcher: Path) -> dict:
             dirty=git('status','--porcelain','--untracked-files=all').stdout.strip()
             add('All answer changes are committed',not dirty,dirty)
         if rules.get('ancestor_start'): add('Original starting history is preserved',ancestor(start),start)
+        if 'interrupted_work' in rules:
+            interrupted=rules['interrupted_work']; start_oid=trusted(start)
+            for path in interrupted['urgent_paths']:
+                changed=git('diff','--quiet',start_oid,'HEAD','--',path,okay=True).returncode==1
+                committed=(git('diff','--quiet','HEAD','--',path,okay=True).returncode==0
+                           and git('diff','--quiet','--cached','HEAD','--',path,okay=True).returncode==0)
+                add('Urgent fix is committed: '+path,changed and committed,
+                    'The urgent file must differ from the starting commit and match HEAD.')
+            protected=interrupted['resume_tracked']+interrupted['resume_untracked']
+            mixed=[]
+            for oid in git('rev-list',start_oid+'..HEAD').stdout.split():
+                touched=git('diff-tree','--root','-m','--no-commit-id','--name-only','-r',oid,'--',*protected).stdout.strip()
+                if touched: mixed.append(oid[:12])
+            add('Unfinished receipt and note stay out of the urgent history',not mixed,
+                'Commits containing unfinished work: '+', '.join(mixed) if mixed else '')
+            for path in interrupted['resume_tracked']:
+                original=git('diff','--quiet',start_oid,'HEAD','--',path,okay=True).returncode==0
+                resumed=git('diff','--quiet','HEAD','--',path,okay=True).returncode==1
+                add('Resumed tracked work remains uncommitted: '+path,original and resumed,
+                    'HEAD retains the original receipt; the resumed change belongs in the working tree.')
+            for path in interrupted['resume_untracked']:
+                absent=git('cat-file','-e','HEAD:'+path,okay=True).returncode!=0
+                untracked=path in git('ls-files','--others','--exclude-standard','--',path).stdout.splitlines()
+                add('Resumed note remains untracked: '+path,absent and untracked,
+                    'The note must be outside both the commit and the index.')
         for ref in rules.get('ancestors',[]): add('Required history is included: '+ref,ancestor(ref))
         for ref in rules.get('not_ancestors',[]): add('Experimental branch tip is not merged: '+ref,not ancestor(ref))
         for path, needles in rules.get('contains',{}).items():

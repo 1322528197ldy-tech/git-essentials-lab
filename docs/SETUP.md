@@ -67,7 +67,31 @@ git config --local user.email "YOUR-COMMIT-EMAIL"
 
 Use the identity you normally use for coursework. Your GitHub-provided no-reply email is an option. A commit identity identifies the author in Git history; it does not authenticate a push to GitHub.
 
-## 5. Check the launcher
+## 5. Choose a Git editor before making commits
+
+Git can open an editor for commit messages, merge/revert messages, and the interactive rebase todo list. Choose one installed editor and configure it **inside each exercise workspace** before using those operations. A repository-local `core.editor` setting affects only that repository; configuring the launcher does not configure its new clones.
+
+If you use VS Code, first confirm that `code --version` works in your terminal. Then, inside the workspace:
+
+```text
+git config --local core.editor "code --wait"
+```
+
+When Git opens a file, edit it, save it, and **close that file's editor tab**. The `--wait` option keeps Git waiting until you close it. If `code` is not found, enable VS Code's command-line launcher or choose another installed editor; merely having the app open is not enough.
+
+If Nano is installed (`nano --version` works), this is a terminal-only alternative:
+
+```text
+git config --local core.editor "nano"
+```
+
+In Nano, press **Ctrl+O**, then **Enter** to save, and **Ctrl+X** to exit. Choose either VS Code or Nano; running both configuration commands selects the last one. Verify the active setting with `git config --get core.editor`.
+
+If Vim opens unexpectedly, press **i** to enter insert mode, edit the text, then press **Esc**, type **`:wq`**, and press **Enter** to save and exit. Read `git status` when the editor closes. If you need to cancel an in-progress operation, follow [Hints and recovery](HINTS.md#recover-from-an-interrupted-operation).
+
+For interactive rebase, the first editor file is a **todo list of commits**, not a commit message. Keep the commit hashes intact and change action words such as `pick` to `reword` or `fixup`. A second editor may then ask for a commit message; [Exercise 10](exercises/10.md#interactive-rebase-editor-example) shows a small example.
+
+## 6. Check the launcher
 
 ```text
 python3 lab.py doctor
@@ -83,9 +107,9 @@ Keep this directory as the launcher. Work on the exercises in the separate direc
 python3 lab.py start 01
 ```
 
-Use the workspace path printed by the command. Exercise workspaces keep `origin` pointed at your fork; always inspect `git remote -v` before your first push.
+Use the workspace path printed by the command. Set its local Git editor as described in step 5. Exercise workspaces keep `origin` pointed at your fork; always inspect `git remote -v` before your first push.
 
-## 6. Make sure GitHub authentication works
+## 7. Make sure GitHub authentication works
 
 Reading a public repository and pushing to your fork require different permissions. Use the HTTPS credential manager or SSH configuration you normally use with GitHub. Follow [GitHub's authentication guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github) if this is your first setup. Do not put a password, token, or private key in source files, commits, screenshots, or submitted documents.
 
@@ -97,5 +121,20 @@ Reading a public repository and pushing to your fork require different permissio
 | Missing `lab-v1/...` reference | Return to the launcher and repeat the upstream fetch in step 3. |
 
 A force push does not fix an authentication or permission problem. Exercise 11 is the dedicated place to practice rewriting a published branch with a lease.
+
+## Updating an existing launcher
+
+When new instructions or checker fixes are announced, update the **original launcher**, not an exercise workspace. First inspect `git status` there. Preserve any personal changes before continuing; do not discard them to make an update succeed. Once the launcher is clean, run:
+
+```text
+git switch main
+git fetch upstream
+git merge --ff-only upstream/main
+python3 lab.py doctor
+```
+
+If Git refuses the fast-forward, inspect the local commits and ask for help rather than resetting or force-pushing. Updating `origin/main` is not required to use the refreshed launcher. The existing `lab-v1/...` starting tags remain unchanged, and your separate exercise workspaces remain intact. Re-run a check from the updated launcher to use the new checker on an existing workspace.
+
+Exercise folders contain historical snapshots of the tools and documents. Use the launcher's current instructions and `lab.py`; those snapshots do not acquire the new wording or checker when the launcher is updated.
 
 Next: [Exercise 01](exercises/01.md).

@@ -29,12 +29,22 @@ The starting application intentionally fails some behavior checks. Inspect the h
 
 The [starting commit graph](../GRAPHS.md#final-shared-release-history-and-private-checklist-work) separates the shared release history, helper histories, and two private checklist commits.
 
+## Inspect this exercise
+
+Inside the workspace:
+
+```text
+git log --oneline --graph --decorate HEAD lab-v1/final/student lab-v1/final/faculty lab-v1/final/search lab-v1/final/donor
+```
+
+For variant B, use the four helpers under `lab-v1/final-b/`. The shared start and bad-policy tags still use `lab-v1/final/`.
+
 ## Task
 
 1. **Establish the PR base before feature work.** Publish the shared starting commit to `result/final` in your own fork, using the setup command below. Do not publish the two local WIP commits as the PR base.
 2. Create and switch to `feature/final` from the current local HEAD, retaining both WIP commits. Squash those two private checklist commits into one meaningful commit before adding other integration work.
-3. Revert the bad-policy commit while preserving the shared history and release notes. Retain the generated revert identification in the corrective commit message.
-4. Merge the student, faculty, and search histories. Resolve conflicts according to all the required behaviors below, retaining the source histories as ancestors.
+3. Revert the bad-policy commit while preserving the shared history and release notes. Keep Git's generated `This reverts commit <hash>.` line in the corrective commit message, with the actual bad-policy commit ID instead of the placeholder.
+4. Merge the student, faculty, and search histories **one at a time**. Resolve conflicts according to all the required behaviors below, retaining the source histories as ancestors. Each helper is a tag naming a commit: `git merge TAG-NAME` can merge it directly without creating a helper branch.
 5. Identify and cherry-pick only the needed fee fix from the donor history. Exclude its reservation prototype and debug notes.
 6. Check the feature result, publish `feature/final`, and open a PR **inside your own fork**, from `feature/final` into `result/final`. Explain the integration decisions and checks. Merge using **Create a merge commit**.
 7. Fetch and inspect the merged target using the final-check procedure below.
@@ -46,6 +56,8 @@ git push origin "lab-v1/final/start^{commit}:refs/heads/result/final"
 ```
 
 It publishes the immutable shared starting commit as the remote target branch. It does not publish your two private WIP commits. If `result/final` already exists from another attempt, stop and inspect that earlier result before deciding which attempt to submit.
+
+Before interactive rebase, confirm your workspace's [Git editor setting](../SETUP.md#5-choose-a-git-editor-before-making-commits). The [small todo example in Exercise 10](10.md#interactive-rebase-editor-example) explains action words and when to edit a commit message; choose the commits for this final task from its own history.
 
 ## Success conditions
 
@@ -78,7 +90,7 @@ git switch -c submitted/final origin/result/final
 
 Then repeat the launcher check against that same workspace. `submitted/final` is a local inspection branch for the merged result. This avoids discarding the earlier local `result/final` pointer, which still identifies the initial private-WIP state. Run the switch only with a clean working tree; if the inspection branch already exists, inspect it before reusing its name.
 
-The local check verifies behavior and history, not the existence of a PR. Confirm the PR repository selectors, branch selectors, merge method, and merged status on GitHub as well.
+Read the evaluated branch and commit ID in each check: before publishing, it should evaluate the proposed `feature/final` work; after merging and fetching, it should evaluate the merged target through `submitted/final`. The local check evaluates current `HEAD` and verifies behavior and history, not the existence or merged state of a PR. A feature-branch PASS alone does not complete submission. Confirm the PR repository selectors, branch selectors, merge method, and merged status on GitHub as well.
 
 ## Submission
 
@@ -89,6 +101,8 @@ Keep the completed remote `result/final` branch and provide the PR URL with your
 Run `python3 lab.py start final --variant b` for a new workspace. The shared start and bad-policy tags remain `lab-v1/final/start` and `lab-v1/final/bad-policy`.
 
 Use the student, faculty, search, and donor helper tags under **`lab-v1/final-b/`**. The changed requirements are **4 student books, 6 faculty books, and 200 per positive overdue day**. The 14-day loan period, case-insensitive search, preserved documents, excluded experiments, private-WIP cleanup, and PR requirements stay the same.
+
+Both variants use `feature/final` and `result/final`. Choose the assigned submission variant before publishing; keep an optional other attempt local. Do not force-push one variant over the other's PR. See [Choosing an A or B attempt](../SUBMISSION.md#choosing-an-a-or-b-attempt).
 
 ## Restart
 

@@ -311,6 +311,7 @@ def start(args):
     print("Workspace: " + str(repo))
     print("Branch: " + git_text(repo, "branch", "--show-current"))
     print("Open this workspace to do the exercise. Keep the launcher clone unchanged.")
+    print("Workspace documents and tools are historical snapshots; use the updated launcher's instructions and check commands.")
     print("Check from the launcher: {} lab.py check {} --repo {}".format(
         PYTHON_COMMAND, exercise_id, json.dumps(str(repo))))
     if spec.get("remote_setup"):
@@ -406,10 +407,37 @@ def check_exercise(args):
         report["passed"] = bool(report.get("passed")) and test.returncode == 0
     report.setdefault("graded", bool(spec.get("graded", False)))
     report["id"] = exercise_id
+    report["evaluation"] = {
+        "ref": "HEAD",
+        "branch": git_text(repo, "branch", "--show-current") or None,
+        "commit": git_text(repo, "rev-parse", "--verify", "HEAD"),
+        "variant": state.get("variant") or "a",
+        "result_branch": spec["solution_branch"] if report["graded"] else None,
+        "start_branch": spec["solution_branch"],
+    }
+    report["scope"] = "Local code, working-tree state and Git history; not GitHub submission."
+    report["github_pr"] = {
+        "required": exercise_id in ("04", "final"),
+        "checked": False,
+    }
     if args.json:
         print(json.dumps(report, indent=2, ensure_ascii=False))
     else:
         print(("PASS" if report.get("passed") else "NOT YET") + " — " + spec.get("title", exercise_id))
+        evaluation = report["evaluation"]
+        print("Evaluated: HEAD on {} (variant {})".format(
+            evaluation["branch"] or "detached HEAD", evaluation["variant"].upper()))
+        print("Commit: " + evaluation["commit"])
+        if report["graded"]:
+            print("Required submission branch: " + evaluation["result_branch"])
+        else:
+            print("Start branch: " + evaluation["start_branch"])
+            recovery = spec.get("checks", {}).get("recovery_branch")
+            if recovery:
+                print("Recovery branch: " + recovery)
+        print("Scope: " + report["scope"])
+        if report["github_pr"]["required"]:
+            print("GitHub PR: NOT CHECKED. Complete and verify the required PR separately.")
         if not report["graded"]:
             print("Practice only: this exercise is not graded.")
         for item in report["checks"]:
@@ -426,14 +454,16 @@ def doctor(args):
     if sys.version_info < (3, 9):
         failures.append("Python 3.9 or newer is required.")
     for tool, minimum, argv, pattern in (
-            ("Git", (2, 23), ["git", "--version"], r"git version (\d+)\.(\d+)"),
-            ("Java", (17,), ["java", "-version"], r'version "(\d+)'),
-            ("Java compiler", (17,), ["javac", "-version"], r"javac (\d+)")):
+            ("Git", (2, 23), ["git", "--version"], r"^git version (\d+)\.(\d+)"),
+            ("Java", (17,), ["java", "-version"], r'^(?:openjdk|java)(?: version)? "?(\d+)'),
+            ("Java compiler", (17,), ["javac", "-version"], r"^javac (\d+)")):
         try:
             result = command(argv, check=False)
-            output = (result.stdout + result.stderr).strip()
-            match = re.search(pattern, output)
-            print(tool + ": " + (output.splitlines()[0] if output else "no version output"))
+            output = "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+            version_line = next((line for line in output.splitlines()
+                                 if re.search(pattern, line)), None)
+            match = re.search(pattern, version_line) if version_line else None
+            print(tool + ": " + (version_line or (output.splitlines()[0] if output else "no version output")))
             if result.returncode or not match or tuple(map(int, match.groups())) < minimum:
                 failures.append(tool + " is missing or too old.")
         except LabError as exc:
@@ -535,13 +565,17 @@ def main(argv=None):
     progress.add_argument("id")
     progress.add_argument("--repo", required=True)
     progress.set_defaults(func=advance)
-    for name, function in (("refs", refs), ("instructions", instructions)):
-        listing = sub.add_parser(name)
-        listing.add_argument("id", nargs="?")
+    for name, function, help_text in (
+            ("refs", refs, "List starting tags, helper tags and result branches"),
+            ("instructions", instructions, "Read the setup overview or one exercise's full instructions")):
+        listing = sub.add_parser(name, help=help_text, description=help_text)
+        listing.add_argument("id", nargs="?", help="Exercise 01..12 or final; omit to show the overview")
         listing.set_defaults(func=function)
     args = parser.parse_args(argv)
     try:
         return args.func(args)
+    except BrokenPipeError:
+        raise
     except (LabError, KeyError, ValueError, OSError) as exc:
         if getattr(args, "json", False):
             print(json.dumps({"passed": False, "error": str(exc)}, ensure_ascii=False))
@@ -550,5 +584,40 @@ def main(argv=None):
         return 2
 
 
+class QuietPipeOutput:
+    """Continue evaluating the command after a reader such as head closes stdout."""
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def mute(self):
+        with open(os.devnull, "w") as sink:
+            os.dup2(sink.fileno(), self.stream.fileno())
+
+    def write(self, text):
+        try:
+            return self.stream.write(text)
+        except BrokenPipeError:
+            self.mute()
+            return len(text)
+
+    def flush(self):
+        try:
+            self.stream.flush()
+        except BrokenPipeError:
+            self.mute()
+            self.stream.flush()
+
+
+def cli_main():
+    # Swallow only a closed output pipe, never the command's failure status.
+    # The wrapper also handles argparse exits and the interpreter's final flush.
+    sys.stdout = QuietPipeOutput(sys.stdout)
+    return main()
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli_main())

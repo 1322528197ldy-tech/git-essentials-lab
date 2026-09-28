@@ -2,9 +2,15 @@
 
 These graphs show the prepared histories **before you solve each task**. Labels describe changes instead of using machine-specific commit IDs. Solid arrows run from an older parent commit to its newer child; they do not show commands to execute. Branch names and tags identify the commits described in their boxes.
 
-The graphs are schematic: spacing has no meaning, and a tag is a name for a commit, not another commit. Inspect the actual workspace with `git log --oneline --graph --decorate --all` and `git show` before acting.
+The graphs are schematic: spacing has no meaning, and a tag is a name for a commit, not another commit. Inspect the actual workspace with the scoped commands below and `git show` before acting. `--all` includes every exercise and both variants, so it is usually too broad when solving just one problem.
 
 ## Exercise 04: two policy edits
+
+```text
+git log --oneline --graph --decorate HEAD lab-v1/ex04/faculty
+```
+
+For B, replace `lab-v1/ex04/faculty` with `lab-v1/ex04-b/faculty`.
 
 ```mermaid
 flowchart LR
@@ -22,6 +28,12 @@ Variant B has the same shape, with tags under `lab-v1/ex04-b/`: student limit **
 [Exercise 04 instructions](exercises/04.md)
 
 ## Exercise 09: one useful patch in a longer history
+
+```text
+git log --oneline --graph --decorate HEAD lab-v1/ex09/donor
+```
+
+For B, replace `lab-v1/ex09/donor` with `lab-v1/ex09-b/donor`.
 
 ```mermaid
 flowchart LR
@@ -41,6 +53,12 @@ Variant B uses `lab-v1/ex09-b/donor` and the same starting tag. Its middle fix c
 
 ## Exercise 10: private work and a newer base
 
+```text
+git log --oneline --graph --decorate HEAD lab-v1/ex10/upstream
+```
+
+For B, replace `lab-v1/ex10/upstream` with `lab-v1/ex10-b/upstream`.
+
 ```mermaid
 flowchart LR
     B["Library baseline<br/>lab-v1/ex10/start"]
@@ -58,6 +76,12 @@ Variant B uses the start and upstream tags under `lab-v1/ex10-b/`. Its helper ex
 [Exercise 10 instructions](exercises/10.md)
 
 ## Final: shared release history and private checklist work
+
+```text
+git log --oneline --graph --decorate HEAD lab-v1/final/student lab-v1/final/faculty lab-v1/final/search lab-v1/final/donor
+```
+
+For B, replace the four helper refs with their `lab-v1/final-b/` versions. The shared start remains `lab-v1/final/start`.
 
 ```mermaid
 flowchart LR

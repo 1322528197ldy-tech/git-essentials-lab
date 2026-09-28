@@ -22,7 +22,7 @@
       "graded": true
     },
     "02": {
-      "title": "Fork, remote and push",
+      "title": "Fork, remotes, and push",
       "start": "lab-v1/ex02/start",
       "helpers": {},
       "solution_branch": "result/ex02",
@@ -75,7 +75,7 @@
       }
     },
     "04": {
-      "title": "Merge, pull request and conflict",
+      "title": "Merge, pull request, and conflict",
       "start": "lab-v1/ex04/start",
       "helpers": {
         "faculty": "lab-v1/ex04/faculty"
@@ -168,6 +168,18 @@
         "search": "sensitive"
       },
       "checks": {
+        "ancestor_start": true,
+        "interrupted_work": {
+          "urgent_paths": [
+            "src/library/LoanPolicy.java"
+          ],
+          "resume_tracked": [
+            "src/library/LoanReceipt.java"
+          ],
+          "resume_untracked": [
+            "notes/search-ideas.txt"
+          ]
+        },
         "contains": {
           "src/library/LoanReceipt.java": [
             "\"Borrowed: \""
